@@ -370,7 +370,7 @@ footer{font-size:12px;color:var(--muted);padding:6px 2px 20px}
 
   <!-- HOJA 4 -->
   <section class="panel" id="p4" role="tabpanel" aria-labelledby="t4">
-    <div class="cmpnote"><b>Setiembre 2025 vs Setiembre 2026</b> · mismo periodo del mes (02 al 30) · tapas contabilizadas en sedes con liquidador TT Audit. Los filtros de fecha, zona y sede se aplican a ambos años.</div>
+    <div class="cmpnote"><b>Setiembre 2025 vs Setiembre 2026</b> · mismo periodo del mes (02 al 30) · solo sedes con conteo en ambos años (no se incluyen Barranca ni Nazca, que no operan en 2026). Los filtros de fecha, zona y sede se aplican a ambos años.</div>
     <div class="kpis k4" style="margin-top:14px">
       <div class="kpi y25"><h3>Setiembre 2025</h3><div class="n" id="c25"></div><div class="s" id="c25s"></div></div>
       <div class="kpi"><h3>Setiembre 2026</h3><div class="n" id="c26"></div><div class="s" id="c26s"></div></div>
@@ -673,7 +673,8 @@ const sgp = (a,b) => b? ((a-b)/b*100>=0?'+':'−')+Math.abs((a-b)/b*100).toFixed
 const pp = n => (n>0?'+':n<0?'−':'')+Math.abs(n).toFixed(1)+' pp';
 function renderP4(A){
   const zOf = s => D25.zona[s] || (C.find(c=>c.s===s)||{}).z || 'Provincia';
-  const pass25 = s => (!F.zona || zOf(s)===F.zona) && (F.sede<0 || C[F.sede].s===s);
+  const S26 = new Set(C.map(c=>c.s));
+  const pass25 = s => S26.has(s) && (!F.zona || zOf(s)===F.zona) && (F.sede<0 || C[F.sede].s===s);
   const r25 = D25.rows.filter(r=>passDate(r[0]) && pass25(r[1]));
   const T25 = r25.reduce((a,r)=>a+r[2],0), P25 = r25.reduce((a,r)=>a+r[3],0);
   const T26 = A.Tt, P26 = A.P, V26 = A.V;
@@ -801,7 +802,7 @@ function render(){
   if(current==='p1') renderP1(A); else if(current==='p2') renderP2(A); else if(current==='p3') renderP3(); else renderP4(A);
 }
 let rz; addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(current==='p2')renderP2(agg()); if(current==='p4')renderP4(agg());},150);});
-$('foot').textContent=`Fuente: ${META.file} · conteos del ${dd(DATES[0])} al ${dd(DATES[DATES.length-1])} · actualizado el ${META.upd}. Elaborado por TT Audit para Arca Continental. Las cifras se recalculan con los filtros activos. Comparativo 2025: Reporte Servicio Conteo de Tapas (setiembre 2025, tapas contabilizadas en sedes con liquidador; no incluye recojos en CDA sin liquidador).`;
+$('foot').textContent=`Fuente: ${META.file} · conteos del ${dd(DATES[0])} al ${dd(DATES[DATES.length-1])} · actualizado el ${META.upd}. Elaborado por TT Audit para Arca Continental. Las cifras se recalculan con los filtros activos. Comparativo 2025: Reporte Servicio Conteo de Tapas (setiembre 2025, tapas contabilizadas en sedes con liquidador; solo las sedes que también tienen conteo en 2026; no incluye recojos en CDA sin liquidador).`;
 initFilters();
 try{const t=localStorage.getItem('tapas-tab'); if(t&&$(t)){document.querySelector(`.tab[data-p="${t}"]`).click();}else render();}catch(e){render();}
 
