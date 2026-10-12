@@ -11,7 +11,7 @@
 :root{
   --yel:#FFCD00; --yel-soft:#FFF4C2; --pri:#1B3A8C; --pri2:#0E2463; --vaso:#E39A00;
   --pl:#2F6FDB; --co:#0E2463; --bad:#C62828;
-  --tint:#EEF2FB; --ink:#1E2433; --muted:#6B7280; --zebra:#F6F7FA; --bg:#F3F1E7; --surface:#FFFFFF; --line:#DDE1EA;
+  --tint:#EEF2FB; --ink:#1E2433; --muted:#6B7280; --zebra:#F6F7FA; --bg:#FFFFFF; --surface:#FFFFFF; --line:#DDE1EA;
   --on-pri:#FFFFFF; --heat:27,58,140;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
@@ -34,10 +34,11 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,Carlito,
 .wrap{max-width:1260px;margin:0 auto;padding:16px}
 .disp{font-family:Archivo,"Arial Black",Calibri,Carlito,sans-serif}
 /* Header */
-.hero{background:var(--yel);color:#0E2463;padding:22px 24px 20px;display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap;border-radius:14px 14px 0 0;position:relative;overflow:hidden}
+.hero{background:linear-gradient(110deg,#FFD84D 0%,#FFCD00 45%,#F5B800 100%);color:#0E2463;padding:16px 24px 18px;border-radius:14px 14px 0 0;position:relative;overflow:hidden}
+.hero .eyebrow{font-family:Archivo,"Arial Black",sans-serif;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#1B3A8C;margin:0 0 6px}
 .hero::after{content:"";position:absolute;right:-60px;bottom:-80px;width:260px;height:260px;border-radius:50%;border:22px solid rgba(14,36,99,.08);pointer-events:none}
-.hero h1{margin:0;font-weight:900;font-size:clamp(22px,3.6vw,38px);line-height:1.02;letter-spacing:-.5px;text-transform:uppercase}
-.hero p{margin:8px 0 0;font-weight:700;font-size:clamp(13px,1.6vw,16px);color:#1B3A8C}
+.hero h1{margin:0;font-weight:800;font-size:clamp(22px,3.2vw,32px);line-height:1.1;letter-spacing:-.3px}
+.hero p{margin:6px 0 0;font-weight:500;font-size:clamp(13px,1.6vw,16px);color:#1B3A8C}
 .logos{display:flex;gap:10px;align-items:center;flex-wrap:wrap;position:relative;z-index:1}
 .logo{background:#fff;border-radius:10px;height:56px;min-width:120px;padding:8px 14px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 rgba(14,36,99,.15)}
 .logo img{max-height:40px;max-width:150px;display:block}
@@ -69,6 +70,10 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:Calibri,Carlito,
 /* KPI */
 .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
 .kpis.k4{grid-template-columns:repeat(4,1fr);margin-top:0}
+.kpis.k5{grid-template-columns:1.25fr repeat(4,1fr)}
+.k5 .kpi .n{font-size:clamp(24px,2.9vw,34px)}
+.k5 .kpi.total .n{font-size:clamp(30px,3.8vw,44px)}
+.kpi .grp{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
 .kpi{background:var(--surface);border:1px solid var(--line);padding:16px 18px;border-radius:12px;position:relative}
 .kpi h3{margin:0;font-size:14px;font-weight:700;color:var(--muted);letter-spacing:.3px;text-transform:uppercase}
 .kpi .n{font-family:Archivo,"Arial Black",Calibri,sans-serif;font-size:clamp(30px,4.6vw,44px);font-weight:900;color:var(--pri);line-height:1.08;margin:6px 0 4px;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
@@ -168,22 +173,17 @@ tr.sel td{background:var(--tint)!important;font-weight:700}
 .chk input{accent-color:var(--pri);width:16px;height:16px}
 .empty{padding:24px;text-align:center;color:var(--muted)}
 footer{font-size:12px;color:var(--muted);padding:6px 2px 20px}
-@media (max-width:900px){.kpis,.kpis.k4{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.btn-clear{margin-left:0}}
-@media (max-width:560px){.kpis,.kpis.k4{grid-template-columns:1fr}.logo{height:46px;min-width:100px}}
+@media (max-width:900px){.kpis,.kpis.k4,.kpis.k5{grid-template-columns:1fr 1fr}.k5 .kpi.total{grid-column:1/-1}.grid2{grid-template-columns:1fr}.btn-clear{margin-left:0}}
+@media (max-width:560px){.kpis,.kpis.k4,.kpis.k5{grid-template-columns:1fr}.logo{height:46px;min-width:100px}}
 @media (prefers-reduced-motion:no-preference){.panel.on{animation:fade .18s ease-out}@keyframes fade{from{opacity:.4}to{opacity:1}}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="hero">
-    <div>
-      <h1 class="disp">Control de Liquidaciones Promocionales</h1>
-      <p>Campaña Inca Kola 1L gratis + Vaso S/2 · Conteo, validación y trazabilidad nacional</p>
-    </div>
-    <div class="logos">
-      <div class="logo" id="logoTT"><span class="wm">TT AUDIT<small>TRADITIONAL TRADE AUDIT</small></span></div>
-      <div class="logo" id="logoArca"><span class="wm">ARCA<br>CONTINENTAL</span></div>
-    </div>
+    <div class="eyebrow">TT Audit · Arca Continental</div>
+    <h1 class="disp">Control de Liquidaciones Promocionales</h1>
+    <p>Campaña Inca Kola 1L gratis + Vaso S/2 · Conteo, validación y trazabilidad nacional</p>
   </header>
   <div class="subtitle" id="subtitle"></div>
 
@@ -206,16 +206,12 @@ footer{font-size:12px;color:var(--muted);padding:6px 2px 20px}
 
   <!-- HOJA 1 -->
   <section class="panel on" id="p1" role="tabpanel" aria-labelledby="t1">
-    <div class="kpis">
-      <div class="kpi"><h3>Tapas promo (IK 1L)</h3><div class="n" id="kPromo"></div><div class="s" id="kPromoS"></div></div>
-      <div class="kpi"><h3>Tapas vaso (+S/2)</h3><div class="n" id="kVaso" style="color:var(--vaso)"></div><div class="s" id="kVasoS"></div></div>
+    <div class="kpis k5">
       <div class="kpi total"><h3>Total tapas recolectadas</h3><div class="n" id="kTot"></div><div class="s" id="kTotS"></div></div>
-    </div>
-    <div class="kpis k4">
-      <div class="kpi"><h3><span class="dot" style="background:var(--pl)"></span>Tapas plástico</h3><div class="n" id="kPl" style="color:var(--pl)"></div><div class="s" id="kPlS"></div></div>
-      <div class="kpi"><h3><span class="dot" style="background:var(--co)"></span>Tapas corona</h3><div class="n" id="kCo" style="color:var(--co)"></div><div class="s" id="kCoS"></div></div>
-      <div class="kpi"><h3>Tapas rechazadas</h3><div class="n" id="kRj"></div><div class="s" id="kRjS"></div></div>
-      <div class="kpi" id="kDfBox"><h3>Registros con diferencia</h3><div class="n" id="kDf"></div><div class="s" id="kDfS"></div></div>
+      <div class="kpi"><div class="grp">Por promoción</div><h3><span class="dot" style="background:var(--pri)"></span>Promo IK 1L</h3><div class="n" id="kPromo"></div><div class="s" id="kPromoS"></div></div>
+      <div class="kpi"><div class="grp">Por promoción</div><h3><span class="dot" style="background:var(--vaso)"></span>Vaso +S/2</h3><div class="n" id="kVaso" style="color:var(--vaso)"></div><div class="s" id="kVasoS"></div></div>
+      <div class="kpi"><div class="grp">Por tipo de tapa</div><h3><span class="dot" style="background:var(--pl)"></span>Plástico</h3><div class="n" id="kPl" style="color:var(--pl)"></div><div class="s" id="kPlS"></div></div>
+      <div class="kpi"><div class="grp">Por tipo de tapa</div><h3><span class="dot" style="background:var(--co)"></span>Corona</h3><div class="n" id="kCo" style="color:var(--co)"></div><div class="s" id="kCoS"></div></div>
     </div>
 
     <div class="sec">
@@ -312,8 +308,7 @@ let mode='d', brk='pv';
 
 /* logos opcionales (data URI) */
 const LOGOS = {};
-if(LOGOS.tt) $('logoTT').innerHTML=`<img src="${LOGOS.tt}" alt="TT Audit">`;
-if(LOGOS.arca) $('logoArca').innerHTML=`<img src="${LOGOS.arca}" alt="Arca Continental">`;
+
 
 /* ---------- filtros ---------- */
 function initFilters(){
@@ -369,12 +364,9 @@ function renderP1(A){
   const days = activeDates().length;
   $('kPromo').textContent=fmt(A.P); $('kPromoS').textContent=pct(A.P,A.Tt)+' del total recolectado';
   $('kVaso').textContent=fmt(A.V); $('kVasoS').textContent=pct(A.V,A.Tt)+' del total recolectado';
-  $('kTot').textContent=fmt(A.Tt); $('kTotS').textContent='≈ '+fmt(days?A.Tt/days:0)+' tapas por día de conteo';
+  $('kTot').textContent=fmt(A.Tt); $('kTotS').textContent='≈ '+fmt(days?A.Tt/days:0)+' tapas por día · '+days+' días de conteo';
   $('kPl').textContent=fmt(A.PL); $('kPlS').textContent=pct1(A.PL,A.Tt)+' del total · promo '+fmt(A.PPL)+' · vaso '+fmt(A.VPL);
   $('kCo').textContent=fmt(A.CO); $('kCoS').textContent=pct1(A.CO,A.Tt)+' del total · promo '+fmt(A.PCO)+' · vaso '+fmt(A.VCO);
-  $('kRj').textContent=fmt(A.RJ); $('kRjS').textContent=pct1(A.RJ,A.PROG)+' de lo programado ('+fmt(A.PROG)+')';
-  $('kDf').textContent=fmt(A.DIF); $('kDfS').textContent=A.DIF?`de ${fmt(A.NR)} registros · revisar en BBDD`:`de ${fmt(A.NR)} registros · todo cuadra`;
-  $('kDfBox').classList.toggle('alert', A.DIF>0);
 
   const s = [...A.sedes].sort((a,b)=>b.t-a.t);
   const max = s.length? s[0].t : 1;
@@ -412,7 +404,6 @@ function renderP1(A){
     const zp=s.filter(x=>x.p===0&&x.t>0); if(zp.length) f.push(`Sin tapas promo en el periodo: ${zp.map(x=>esc(x.s)).join(', ')}.`);
   } else f.push('No hay conteos para los filtros elegidos. Amplía el rango de fechas o quita filtros.');
   let fh=f.map(x=>`<li>${x}</li>`).join('');
-  if(A.DIF) fh+=`<li class="warn">${fmt(A.DIF)} registro(s) tienen diferencia entre lo programado y lo contado. Revísalos en la hoja BBDD con el filtro "Solo filas con diferencia".</li>`;
   $('find1').innerHTML=fh;
 
   // heatmap
