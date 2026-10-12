@@ -380,7 +380,7 @@ footer{font-size:12px;color:var(--muted);padding:6px 2px 20px}
     <div class="kpis k4" style="margin-top:0">
       <div class="kpi"><h3>Promedio diario</h3><div class="vs" id="cAvg"></div></div>
       <div class="kpi"><h3>Mejor día</h3><div class="vs" id="cBest"></div></div>
-      <div class="kpi"><h3>Cumplimiento del programado</h3><div class="vs" id="cCump"></div></div>
+      <div class="kpi"><h3>Promedio por sede</h3><div class="vs" id="cCump"></div></div>
       <div class="kpi"><h3><span class="dot" style="background:var(--vaso)"></span>Vaso +S/2 · nuevo en 2026</h3><div class="n" id="cVaso" style="color:var(--vaso)"></div><div class="s" id="cVasoS"></div></div>
     </div>
     <div class="grid2">
@@ -391,7 +391,7 @@ footer{font-size:12px;color:var(--muted);padding:6px 2px 20px}
       <h2>Tendencia del mes: 2025 vs 2026
         <span class="seg" id="cmpMode"><button aria-pressed="true" data-m="a">Acumulado</button><button aria-pressed="false" data-m="d">Diario</button></span>
       </h2>
-      <div class="body"><div class="legend"><span><i style="background:var(--y25)"></i>Setiembre 2025</span><span><i style="background:var(--pri)"></i>Setiembre 2026</span></div><div class="chart" id="cCmp"></div></div>
+      <div class="body"><div class="legend"><span><i style="background:var(--y25)"></i>Setiembre 2025</span><span><i style="background:var(--pri)"></i>Setiembre 2026</span><span>Días hábiles de conteo: sin domingos ni feriados</span></div><div class="chart" id="cCmp"></div><div class="cor" id="cCmpNote" style="margin-top:6px"></div></div>
     </div>
     <div class="sec">
       <h2>Ranking por sede: 2025 vs 2026 <small>Clic en un encabezado para ordenar</small></h2>
@@ -704,7 +704,8 @@ function renderP4(A){
   const av25=act25.length?T25/act25.length:0, av26=act26.length?T26/act26.length:0;
   $('cAvg').innerHTML=vs(fmt(av25),fmt(av26),`${sgp(av26,av25)} · tapas por día con conteo`);
   $('cBest').innerHTML=vs(b25?fmt(d25[b25]):'0', b26?fmt(d26[b26]):'0', `2025: ${dm(b25)} · 2026: ${dm(b26)}`);
-  $('cCump').innerHTML=vs(pct1(T25,P25), pct1(T26,prog26), 'Tapas contabilizadas / tapas programadas');
+  const n25=list.filter(x=>x.a>0).length, n26=list.filter(x=>x.b>0).length, ps25=n25?T25/n25:0, ps26=n26?T26/n26:0;
+  $('cCump').innerHTML=vs(fmt(ps25), fmt(ps26), `${sgp(ps26,ps25)} · tapas por sede en el periodo`);
   $('cVaso').textContent=fmt(V26); $('cVasoS').textContent=`${pct1(V26,T26)} del total 2026 · no existía en 2025`;
   // tabla de indicadores
   const lead = (k,f) => list.filter(x=>x[k]>0&&f(x)).sort((p,q)=>q[k]-p[k])[0];
@@ -723,25 +724,40 @@ function renderP4(A){
     ['Días con conteo', act25.length, act26.length],
     ['Mix de promociones', 'Promo 100%', `Promo ${pct(P26,T26)} · Vaso ${pct(V26,T26)}`]];
   $('tCmp').innerHTML=`<thead><tr><th>Indicador</th><th>Set. 2025</th><th>Set. 2026</th></tr></thead><tbody>${rowsT.map(r=>`<tr><td><b>${r[0]}</b></td><td class="y25">${r[1]}</td><td class="y26">${r[2]}</td></tr>`).join('')}</tbody>`;
-  // gráfico de tendencia
+  // gráfico de tendencia por día hábil (sin domingos ni feriados)
+  const HOL = new Set(['2025-08-30','2025-10-08','2026-08-30','2026-10-08']);
+  const wd = y => { const out=[]; let d=new Date(F.desde+'T12:00:00'); const end=new Date(F.hasta+'T12:00:00');
+    while(d<=end){ const k=d.toISOString().slice(0,10); const real=y+k.slice(4); const dow=new Date(real+'T12:00:00').getDay(); if(dow!==0 && !HOL.has(real)) out.push(k); d.setDate(d.getDate()+1);} return out; };
+  const w25=wd('2025'), w26=wd('2026'); const N=Math.max(w25.length,w26.length);
+  const ex25=Object.keys(d25).filter(k=>d25[k]>0 && !w25.includes(k)).reduce((a,k)=>a+d25[k],0);
+  const ex26=Object.keys(d26).filter(k=>d26[k]>0 && !w26.includes(k)).reduce((a,k)=>a+d26[k],0);
+  let a1=0,a2=0; const ser=[];
+  for(let i=0;i<N;i++){ const k1=w25[i], k2=w26[i]; const x=k1?(d25[k1]||0):null, y=k2?(d26[k2]||0):null; if(x!=null)a1+=x; if(y!=null)a2+=y;
+    ser.push({k1,k2, x: x==null?null:(cmpMode==='a'?a1:x), y: y==null?null:(cmpMode==='a'?a2:y)}); }
   const el=$('cCmp'); const W=Math.max(320,el.clientWidth||900), Hh=Math.round(Math.min(360,Math.max(240,W*0.34)));
   const m={l:64,r:70,t:20,b:34}; const iw=W-m.l-m.r, ih=Hh-m.t-m.b;
-  let a1=0,a2=0; const ser=days.map(d=>{const x=d25[d]||0,y=d26[d]||0; a1+=x; a2+=y; return cmpMode==='a'?{d,x:a1,y:a2}:{d,x,y};});
-  const ymax=niceMax(Math.max(1,...ser.map(s=>Math.max(s.x,s.y))));
-  const X=i=>m.l+(ser.length>1?iw*i/(ser.length-1):iw/2), Y=v=>m.t+ih-ih*v/ymax;
-  let s=`<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Tendencia 2025 vs 2026">`;
+  const ymax=niceMax(Math.max(1,...ser.map(s=>Math.max(s.x||0,s.y||0))));
+  const X=i=>m.l+(N>1?iw*i/(N-1):iw/2), Y=v=>m.t+ih-ih*v/ymax;
+  const dl = (k,y) => { if(!k) return '—'; const real=y+k.slice(4); return `${DOW[new Date(real+'T12:00:00').getDay()]} ${k.slice(8)}/${k.slice(5,7)}`; };
+  let s=`<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="Tendencia por día hábil 2025 vs 2026">`;
   for(let k=0;k<=4;k++){const v=ymax*k/4; s+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" ${k?'stroke-dasharray="3 3"':''}/><text x="${m.l-6}" y="${Y(v)+4}" text-anchor="end">${v>=1e6?(v/1e6).toFixed(2).replace(/\.?0+$/,'')+'M':v>=1000?Math.round(v/1000)+'k':fmt(v)}</text>`;}
-  const path=k=>ser.map((p,i)=>(i?'L':'M')+X(i).toFixed(1)+','+Y(p[k]).toFixed(1)).join('');
+  const path=k=>ser.map((p,i)=>p[k]==null?'':((i&&ser[i-1][k]!=null?'L':'M')+X(i).toFixed(1)+','+Y(p[k]).toFixed(1))).join('');
   s+=`<path d="${path('x')}" fill="none" stroke="var(--y25)" stroke-width="3"/><path d="${path('y')}" fill="none" stroke="var(--pri)" stroke-width="3"/>`;
-  const ev=ser.length>18?2:1;
-  ser.forEach((p,i)=>{ s+=`<circle cx="${X(i)}" cy="${Y(p.x)}" r="3" fill="var(--y25)"/><circle cx="${X(i)}" cy="${Y(p.y)}" r="3" fill="var(--pri)"/>`;
-    if(i%ev===0) s+=`<text x="${X(i)}" y="${m.t+ih+18}" text-anchor="middle">${+p.d.slice(8)}</text>`;
-    const tt=`<b>${p.d.slice(8)}/${p.d.slice(5,7)}</b>${cmpMode==='a'?' (acumulado)':''}<br>2025: ${fmt(p.x)}<br>2026: <b>${fmt(p.y)}</b><br>2026 vs 2025: ${p.x?pct1(p.y,p.x):'—'}`;
-    const w=ser.length>1?iw/(ser.length-1):iw; s+=`<rect class="b" data-tt="${esc(tt)}" x="${X(i)-w/2}" y="${m.t}" width="${w}" height="${ih}" fill="transparent"/>`; });
-  if(ser.length){const L=ser[ser.length-1]; s+=`<text class="vl" x="${X(ser.length-1)+6}" y="${Y(L.x)+4}" style="fill:#6B7280">${L.x>=1e6?(L.x/1e6).toFixed(2)+'M':Math.round(L.x/1000)+'k'}</text><text class="vl" x="${X(ser.length-1)+6}" y="${Y(L.y)+4}" style="fill:var(--pri)">${L.y>=1e6?(L.y/1e6).toFixed(2)+'M':Math.round(L.y/1000)+'k'}</text>`;}
-  s+=`<text x="${m.l+iw/2}" y="${Hh-2}" text-anchor="middle" style="font-size:11px">día de setiembre</text></svg>`;
-  el.innerHTML=ser.length?s:'<div class="empty">Sin datos para los filtros elegidos.</div>';
+  const ev=N>18?2:1;
+  ser.forEach((p,i)=>{ if(p.x!=null) s+=`<circle cx="${X(i)}" cy="${Y(p.x)}" r="3" fill="var(--y25)"/>`; if(p.y!=null) s+=`<circle cx="${X(i)}" cy="${Y(p.y)}" r="3" fill="var(--pri)"/>`;
+    if(i%ev===0) s+=`<text x="${X(i)}" y="${m.t+ih+18}" text-anchor="middle">${i+1}</text>`;
+    const tt=`<b>Día hábil ${i+1}</b>${cmpMode==='a'?' (acumulado)':''}<br>2025 · ${dl(p.k1,'2025')}: ${p.x==null?'—':fmt(p.x)}<br>2026 · ${dl(p.k2,'2026')}: <b>${p.y==null?'—':fmt(p.y)}</b><br>2026 vs 2025: ${p.x?pct1(p.y||0,p.x):'—'}`;
+    const w=N>1?iw/(N-1):iw; s+=`<rect class="b" data-tt="${esc(tt)}" x="${X(i)-w/2}" y="${m.t}" width="${w}" height="${ih}" fill="transparent"/>`; });
+  const lastOf=k=>{for(let i=ser.length-1;i>=0;i--) if(ser[i][k]!=null) return [i,ser[i][k]]; return null;};
+  const fk=v=>v>=1e6?(v/1e6).toFixed(2)+'M':Math.round(v/1000)+'k';
+  const L1=lastOf('x'), L2=lastOf('y');
+  if(L1) s+=`<text class="vl" x="${X(L1[0])+6}" y="${Y(L1[1])+4}" style="fill:#6B7280">${fk(L1[1])}</text>`;
+  if(L2) s+=`<text class="vl" x="${X(L2[0])+6}" y="${Y(L2[1])+4}" style="fill:var(--pri)">${fk(L2[1])}</text>`;
+  s+=`<text x="${m.l+iw/2}" y="${Hh-2}" text-anchor="middle" style="font-size:11px">día hábil de conteo (lunes a sábado)</text></svg>`;
+  el.innerHTML=N?s:'<div class="empty">Sin datos para los filtros elegidos.</div>';
   el.querySelectorAll('rect[data-tt]').forEach(g=>{g.onmousemove=e=>showTip(e,g.dataset.tt);g.onmouseleave=hideTip;});
+  $('cCmpNote').textContent = (ex25||ex26) ? `Tapas contadas en domingo o feriado que no aparecen en este gráfico (sí se incluyen en los totales): 2025 ${fmt(ex25)} · 2026 ${fmt(ex26)}.` : '';
+
   // ranking
   const mv = x => { if(!x.ra) return '<span class="tag">Nueva en 2026</span>'; if(!x.rb) return '<span class="tag">Sin conteo en 2026</span>'; const d=x.ra-x.rb; return d>0?`<span class="mv up">▲ ${d}</span>`:d<0?`<span class="mv dn">▼ ${-d}</span>`:'<span class="mv eq">= </span>'; };
   const cols=[['s','Sede',0],['z','Zona',0],['ra','Puesto 2025',1],['rb','Puesto 2026',1],['mv','Movimiento',1],['a','Tapas 2025',1],['b','Tapas 2026',1],['dv','Variación',1],['dp','Var. %',1],['sa','Part. 2025',1],['sb','Part. 2026',1],['ds','Δ part.',1]];
