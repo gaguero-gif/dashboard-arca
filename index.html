@@ -377,9 +377,10 @@ footer{font-size:12px;color:var(--muted);padding:6px 2px 20px}
       <div class="kpi total"><h3>Variación total</h3><div class="n" id="cVar"></div><div class="s" id="cVarS"></div></div>
       <div class="kpi"><h3>Promo vs promo</h3><div class="n" id="cPP"></div><div class="s" id="cPPS"></div></div>
     </div>
-    <div class="kpis k3" style="margin-top:0">
+    <div class="kpis k4" style="margin-top:0">
       <div class="kpi"><h3>Promedio diario</h3><div class="vs" id="cAvg"></div></div>
       <div class="kpi"><h3>Mejor día</h3><div class="vs" id="cBest"></div></div>
+      <div class="kpi"><h3>Promedio por sede</h3><div class="vs" id="cSede"></div></div>
       <div class="kpi"><h3><span class="dot" style="background:var(--vaso)"></span>Vaso +S/2 · nuevo en 2026</h3><div class="n" id="cVaso" style="color:var(--vaso)"></div><div class="s" id="cVasoS"></div></div>
     </div>
     <div class="grid2">
@@ -703,6 +704,8 @@ function renderP4(A){
   const av25=act25.length?T25/act25.length:0, av26=act26.length?T26/act26.length:0;
   $('cAvg').innerHTML=vs(fmt(av25),fmt(av26),`${sgp(av26,av25)} · tapas por día con conteo`);
   $('cBest').innerHTML=vs(b25?fmt(d25[b25]):'0', b26?fmt(d26[b26]):'0', `2025: ${dm(b25)} · 2026: ${dm(b26)}`);
+  const n25=list.filter(x=>x.a>0).length, n26=list.filter(x=>x.b>0).length, ps25=n25?T25/n25:0, ps26=n26?T26/n26:0;
+  $('cSede').innerHTML=vs(fmt(ps25), fmt(ps26), `${sgp(ps26,ps25)} · tapas por sede en el periodo`);
   $('cVaso').textContent=fmt(V26); $('cVasoS').textContent=`${pct1(V26,T26)} del total 2026 · no existía en 2025`;
   // tabla de indicadores
   const lead = (k,f) => list.filter(x=>x[k]>0&&f(x)).sort((p,q)=>q[k]-p[k])[0];
